@@ -1,18 +1,21 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
 
-import { Navbar } from './components/Navbar'
+import {Navbar} from './components/Navbar'
+import PostsList from "@/features/posts/PostsList";
 
 function App() {
   return (
     <Router>
-      <Navbar />
+      <Navbar/>
       <div className="App">
         <Routes>
           <Route
             path="/"
             element={
               <section>
-                <h2>Welcome to the Redux Essentials example app!</h2>
+                <>
+                  <PostsList/>
+                </>
               </section>
             }
           ></Route>
