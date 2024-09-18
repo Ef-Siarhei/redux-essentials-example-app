@@ -14,7 +14,7 @@ export const SinglePostPage = () => {
       </section>
     )
   }
-  console.log(post)
+
   return (
     <section>
       <article className={'post'}>
