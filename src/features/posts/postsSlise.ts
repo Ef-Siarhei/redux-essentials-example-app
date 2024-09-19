@@ -24,12 +24,20 @@ const postsSlice = createSlice({
       // «Мутировать» существующий массив эффектов, который
       // здесь безопасен, потому что `createSlice` использует внутри Immer.
       state.push(action.payload)
+    },
+    postUpdated(state, action: PayloadAction<Post>) {
+      const {id, title, content} = action.payload
+      const existingPost = state.find(post => post.id === id)
+      if (existingPost) {
+        existingPost.title = title
+        existingPost.content = content
+      }
     }
   }
 })
 
 // Экспортируем автоматически созданный создатель действия с тем же именем
-export const {postAdded} = postsSlice.actions
+export const {postAdded, postUpdated} = postsSlice.actions
 
 // Экспортируем сгенерированную функцию редуктора
 export default postsSlice.reducer
