@@ -1,7 +1,7 @@
 import React from "react";
 import {useAppDispatch, useAppSelector} from "@/app/hooks";
 import {useNavigate, useParams} from "react-router-dom";
-import {postUpdated} from "@/features/posts/postsSlice";
+import {postUpdated, selectPostById} from "@/features/posts/postsSlice";
 
 // Типы TS для ввода полей
 // См.: https://epicreact.dev/how-to-type-a-react-form-on-submit-handler/
@@ -17,7 +17,7 @@ interface EditPostFormElements extends HTMLFormElement {
 const EditPostForm = () => {
   const {postId} = useParams()
 
-  const post = useAppSelector(state => state.posts.find(post => post.id === postId))
+  const post = useAppSelector(state => selectPostById(state,postId!))
 
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
