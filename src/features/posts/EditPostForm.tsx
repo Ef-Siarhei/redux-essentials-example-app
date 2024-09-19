@@ -1,6 +1,6 @@
+import React from "react";
 import {useAppDispatch, useAppSelector} from "@/app/hooks";
 import {useNavigate, useParams} from "react-router-dom";
-import React from "react";
 import {postUpdated} from "@/features/posts/postsSlice";
 
 // Типы TS для ввода полей
