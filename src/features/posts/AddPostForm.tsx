@@ -1,6 +1,6 @@
 import React from "react";
 import {useAppDispatch} from "@/app/hooks";
-import {type Post, postAdded} from "@/features/posts/postsSlise";
+import {type Post, postAdded} from "@/features/posts/postsSlice";
 import {nanoid} from "@reduxjs/toolkit";
 
 // Типы TS для ввода полей
