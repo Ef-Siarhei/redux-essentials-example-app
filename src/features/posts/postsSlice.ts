@@ -1,4 +1,4 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
 
 // Определить тип TS для данных, которые мы будем использовать.
 export interface Post {
@@ -18,13 +18,17 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    // Объявляем «редуктор регистра» с именем postAdded.
-    // Тип `action.payload` будет объектом `Post`.
-    postAdded(state, action: PayloadAction<Post>) {
-      // «Мутировать» существующий массив эффектов, который
-      // здесь безопасен, потому что `createSlice` использует внутри Immer.
-      state.push(action.payload)
+    postAdded: {
+      reducer(state, action: PayloadAction<Post>) {
+        state.push(action.payload)
+      },
+      prepare(title: string, content: string) {
+        return {
+          payload: {id: nanoid(), title, content}
+        }
+      }
     },
+
     postUpdated(state, action: PayloadAction<Post>) {
       const {id, title, content} = action.payload
       const existingPost = state.find(post => post.id === id)
