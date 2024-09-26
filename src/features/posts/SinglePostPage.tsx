@@ -2,6 +2,7 @@ import {Link, useParams} from "react-router-dom";
 import {useAppSelector} from "@/app/hooks";
 import {selectPostById} from "@/features/posts/postsSlice";
 import {PostAuthor} from "@/features/posts/PostAuthor";
+import {TimeAgo} from "@/components/TimeAgo";
 
 export const SinglePostPage = () => {
   const {postId} = useParams()
@@ -22,6 +23,7 @@ export const SinglePostPage = () => {
         <h2>{post.title}</h2>
         <p className={'post-content'}>{post.content}</p>
         <PostAuthor userId={post.user} />
+        <TimeAgo timestamp={post.date}/>
         <br/>
         <Link to={`/editPost/${post.id}`} className="button">
           Edit Post
