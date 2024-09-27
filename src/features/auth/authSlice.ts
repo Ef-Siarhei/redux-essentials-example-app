@@ -2,11 +2,11 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "@/app/store";
 
 interface AuthState {
-  username: string | null
+  username: string
 }
 
 const initialState: AuthState = {
-  username: null
+  username: ''
 }
 
 const authSlice = createSlice({
@@ -17,7 +17,7 @@ const authSlice = createSlice({
       state.username = action.payload
     },
     userLoggedOut(state) {
-      state.username = null
+      state.username = ''
     }
   }
 })
