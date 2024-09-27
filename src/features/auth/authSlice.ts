@@ -24,6 +24,6 @@ const authSlice = createSlice({
 
 export const {userLoggedIn, userLoggedOut } = authSlice.actions
 
-export const selectCurrentUsername = (state: RootState) => {state.auth.username}
+export const selectCurrentUsername = (state: RootState) => state.auth.username
 
 export default authSlice.reducer
