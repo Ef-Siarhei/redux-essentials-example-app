@@ -40,10 +40,21 @@ interface PostsState {
   error: string | null
 }
 
-export const fetchPosts = createAppAsyncThunk('posts/fetchPosts', async () => {
-  const response = await client.get<Post[]>('/fakeApi/posts')
-  return response.data
-})
+export const fetchPosts = createAppAsyncThunk(
+  'posts/fetchPosts',
+  async () => {
+    const response = await client.get<Post[]>('/fakeApi/posts')
+    return response.data
+  },
+  {
+    condition(arg, thunkApi) {
+      const postsStatus = selectPostsStatus(thunkApi.getState())
+      if (postsStatus !== 'idle') {
+        return false
+      }
+    }
+  }
+)
 
 const initialState: PostsState = {
   posts: [],
@@ -100,7 +111,7 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.pending, (state, action) => {
         state.status = 'pending'
       })
-      .addCase(fetchPosts.fulfilled, (state, action) =>{
+      .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.posts.push(...action.payload)
       })
