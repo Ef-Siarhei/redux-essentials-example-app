@@ -1,8 +1,8 @@
 import {createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
-import {sub} from "date-fns";
+
+import {client} from "@/api/client";
 import {userLoggedOut} from "@/features/auth/authSlice";
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
+import {createAppAsyncThunk} from "@/app/withTypes";
 
 export interface Reactions {
   thumbsUp: number
@@ -39,6 +39,12 @@ interface PostsState {
   status: 'idle' | 'pending' | 'succeeded' | 'rejected'
   error: string | null
 }
+
+export const fetchPosts = createAppAsyncThunk('posts/fetchPosts', async () => {
+  const response = await client.get<Post[]>('/fakeApi/posts')
+  return response.data
+})
+
 const initialState: PostsState = {
   posts: [],
   status: 'idle',
@@ -87,21 +93,35 @@ const postsSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(userLoggedOut, (state) => {
-      return initialState
-    })
+    builder
+      .addCase(userLoggedOut, (state) => {
+        return initialState
+      })
+      .addCase(fetchPosts.pending, (state, action) => {
+        state.status = 'pending'
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) =>{
+        state.status = 'succeeded'
+        state.posts.push(...action.payload)
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = 'rejected'
+        state.error = action.error.message ?? 'Unknown Error'
+      })
   },
   // Перенес селекторы в createSlice
   selectors: {
-    selectAllPosts: postState => postState,
-    selectPostById: (postState, postId: string) => postState.posts.find(post => post.id === postId)
+    selectAllPosts: postState => postState.posts,
+    selectPostById: (postState, postId: string) => postState.posts.find(post => post.id === postId),
+    selectPostsStatus: postState => postState.status,
+    selectPostsError: postState => postState.error
   }
 })
 
 // Экспортируем автоматически созданный создатель действия с тем же именем
 export const {postAdded, postUpdated, reactionAdded} = postsSlice.actions
 
-export const {selectAllPosts, selectPostById} = postsSlice.selectors
+export const {selectAllPosts, selectPostById, selectPostsStatus, selectPostsError} = postsSlice.selectors
 
 // Экспортируем сгенерированную функцию редуктора
 export default postsSlice.reducer
