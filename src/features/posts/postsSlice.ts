@@ -1,5 +1,6 @@
 import {createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
 import {sub} from "date-fns";
+import {userLoggedOut} from "@/features/auth/authSlice";
 
 export interface Reactions {
   thumbsUp: number
@@ -85,6 +86,11 @@ const postsSlice = createSlice({
         existingPost.reactions[reaction]++
       }
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(userLoggedOut, (state) => {
+      return []
+    })
   },
   // Перенес селекторы в createSlice
   selectors: {
