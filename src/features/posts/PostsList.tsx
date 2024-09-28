@@ -1,14 +1,24 @@
-import {useAppSelector} from "@/app/hooks";
+import {useAppDispatch, useAppSelector} from "@/app/hooks";
 import {Link} from "react-router-dom";
-import {selectAllPosts} from "@/features/posts/postsSlice";
+import {fetchPosts, selectAllPosts, selectPostsStatus} from "@/features/posts/postsSlice";
 import {PostAuthor} from "@/features/posts/PostAuthor";
 import {TimeAgo} from "@/components/TimeAgo";
 import {ReactionButtons} from "@/features/posts/ReactionButtons";
+import {useEffect} from "react";
 
 const PostsList = () => {
+  const dispatch = useAppDispatch()
   const posts = useAppSelector(selectAllPosts)
+  const postStatus = useAppSelector(selectPostsStatus)
+
+  useEffect(() => {
+    if(postStatus === 'idle') {
+      dispatch(fetchPosts())
+    }
+  }, [postStatus, dispatch])
+
   // Сортирую посты относительно временной метки date
-  const orderedPosts = posts.slice().sort((a, b)=> b.date.localeCompare(a.date))
+  const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date))
 
   const renderedPosts = orderedPosts.map(post => (
     <article className={'post-excerpt'} key={post.id}>
