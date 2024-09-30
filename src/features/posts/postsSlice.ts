@@ -25,6 +25,7 @@ export interface Post {
 }
 
 type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
+type NewPost = Pick<Post, 'title' | 'content' | 'user'>
 
 const initialReactions: Reactions = {
   thumbsUp: 0,
@@ -56,6 +57,14 @@ export const fetchPosts = createAppAsyncThunk(
   }
 )
 
+export const addNewPost = createAppAsyncThunk(
+  'posts/addNewPost',
+  async (initialPost: NewPost) => {
+    const response = await client.post<Post>('/fakeApi/posts', initialPost)
+    return response.data
+  }
+)
+
 const initialState: PostsState = {
   posts: [],
   status: 'idle',
@@ -67,23 +76,6 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    postAdded: {
-      reducer(state, action: PayloadAction<Post>) {
-        state.posts.push(action.payload)
-      },
-      prepare(title: string, content: string, userId: string) {
-        return {
-          payload: {
-            id: nanoid(),
-            date: new Date().toISOString(),
-            title,
-            content,
-            user: userId,
-            reactions: initialReactions
-          },
-        }
-      },
-    },
     postUpdated(state, action: PayloadAction<PostUpdate>) {
       const {id, title, content} = action.payload
       const existingPost = state.posts.find(post => post.id === id)
@@ -119,6 +111,9 @@ const postsSlice = createSlice({
         state.status = 'rejected'
         state.error = action.error.message ?? 'Unknown Error'
       })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        state.posts.push(action.payload)
+      })
   },
   // Перенес селекторы в createSlice
   selectors: {
@@ -130,7 +125,9 @@ const postsSlice = createSlice({
 })
 
 // Экспортируем автоматически созданный создатель действия с тем же именем
-export const {postAdded, postUpdated, reactionAdded} = postsSlice.actions
+export const {
+  // postAdded,
+  postUpdated, reactionAdded} = postsSlice.actions
 
 export const {selectAllPosts, selectPostById, selectPostsStatus, selectPostsError} = postsSlice.selectors
 
