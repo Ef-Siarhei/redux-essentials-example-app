@@ -1,9 +1,7 @@
 import React, {useState} from "react";
 import {useAppDispatch, useAppSelector} from "@/app/hooks";
-// import {postAdded} from "@/features/posts/postsSlice";
 import {selectCurrentUsername} from "@/features/auth/authSlice";
 import {addNewPost} from "@/features/posts/postsSlice";
-import {Spinner} from "@/components/Spinner";
 
 // Типы TS для ввода полей
 // См.: https://epicreact.dev/how-to-type-a-react-form-on-submit-handler/

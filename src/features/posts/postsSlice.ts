@@ -1,4 +1,4 @@
-import {createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 import {client} from "@/api/client";
 import {userLoggedOut} from "@/features/auth/authSlice";
@@ -26,14 +26,6 @@ export interface Post {
 
 type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
 type NewPost = Pick<Post, 'title' | 'content' | 'user'>
-
-const initialReactions: Reactions = {
-  thumbsUp: 0,
-  tada: 0,
-  heart: 0,
-  rocket: 0,
-  eyes: 0,
-}
 
 interface PostsState {
   posts: Post[]
@@ -97,10 +89,10 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(userLoggedOut, (state) => {
+      .addCase(userLoggedOut, () => {
         return initialState
       })
-      .addCase(fetchPosts.pending, (state, action) => {
+      .addCase(fetchPosts.pending, (state) => {
         state.status = 'pending'
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
