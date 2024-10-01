@@ -11,7 +11,7 @@ interface PostExcerptProps {
   post: Post
 }
 
-function PostExcerpt({post}: PostExcerptProps) {
+export function PostExcerpt({post}: PostExcerptProps) {
   return (
     <article className={'post-excerpt'}>
       <h3>
