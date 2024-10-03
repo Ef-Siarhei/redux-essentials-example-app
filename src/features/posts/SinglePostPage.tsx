@@ -27,7 +27,7 @@ export const SinglePostPage = () => {
       <article className={'post'}>
         <h2>{post.title}</h2>
         <p className={'post-content'}>{post.content}</p>
-        <PostAuthor userId={post.user}/>
+        <PostAuthor userId={post.user} showPrefix/>
         <TimeAgo timestamp={post.date}/>
         <ReactionButtons post={post}/>
         <br/>
