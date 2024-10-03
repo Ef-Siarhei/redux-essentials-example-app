@@ -42,7 +42,7 @@ const PostsList = () => {
   if (postStatus === 'pending') {
     content = <Spinner text={'Loading...'}/>
   } else if (postStatus === 'succeeded') {
-    // Сортирую посты относительно временной метки date
+
     const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date))
 
     content = orderedPosts.map(post => (
