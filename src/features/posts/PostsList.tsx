@@ -11,7 +11,7 @@ interface PostExcerptProps {
   post: Post
 }
 
-export function PostExcerpt({post}: PostExcerptProps) {
+let PostExcerpt =  ({post}: PostExcerptProps) => {
   return (
     <article className={'post-excerpt'}>
       <h3>
@@ -24,6 +24,7 @@ export function PostExcerpt({post}: PostExcerptProps) {
     </article>
   )
 }
+let PostExcerptMemo = React.memo(PostExcerpt)
 
 const PostsList = () => {
   const dispatch = useAppDispatch()
@@ -46,7 +47,7 @@ const PostsList = () => {
     const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date))
 
     content = orderedPosts.map(post => (
-      <PostExcerpt post={post} key={post.id}/>
+      <PostExcerptMemo post={post} key={post.id}/>
     ))
   } else if (postStatus === 'rejected') {
     content = <div>{postError}</div>
