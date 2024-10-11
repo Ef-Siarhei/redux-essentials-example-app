@@ -1,4 +1,4 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 import {client} from "@/api/client";
 import {logout} from "@/features/auth/authSlice";
@@ -113,11 +113,17 @@ const postsSlice = createSlice({
     selectPostById: (postState, postId: string) => postState.posts.find(post => post.id === postId),
     selectPostsStatus: postState => postState.status,
     selectPostsError: postState => postState.error,
-    selectPostsByUser: (postState, userId: string): Post[] => {
-      const allPosts = postsSlice.getSelectors().selectAllPosts(postState)
-      return allPosts.filter(post => post.user === userId)
-        .sort((a, b) => b.date.localeCompare(a.date))
-    }
+    // selectPostsByUser: (postState, userId: string): Post[] => {
+    //   const allPosts = postsSlice.getSelectors().selectAllPosts(postState)
+    //   return allPosts.filter(post => post.user === userId)
+    //     .sort((a, b) => b.date.localeCompare(a.date))
+    // }
+    selectPostsByUser: createSelector([
+        (postState): Post[] => postsSlice.getSelectors().selectAllPosts(postState),
+        (postState, userId) => userId
+      ],
+      (posts, userId) => posts.filter(post => post.user === userId)
+    )
   }
 })
 
