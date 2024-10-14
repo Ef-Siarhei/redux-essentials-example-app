@@ -28,7 +28,7 @@ export interface Post {
 type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
 type NewPost = Pick<Post, 'title' | 'content' | 'user'>
 
-interface PostsState extends EntityState<Post, string>{
+interface PostsState extends EntityState<Post, string> {
   status: 'idle' | 'pending' | 'succeeded' | 'rejected'
   error: string | null
 }
@@ -75,11 +75,7 @@ const postsSlice = createSlice({
   reducers: {
     postUpdated(state, action: PayloadAction<PostUpdate>) {
       const {id, title, content} = action.payload
-      const existingPost = state.entities[id]
-      if (existingPost) {
-        existingPost.title = title
-        existingPost.content = content
-      }
+      postsAdapter.updateOne(state, {id, changes: {title, content}})
     },
     reactionAdded(
       state,
