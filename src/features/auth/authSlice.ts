@@ -4,7 +4,7 @@ import {createAppAsyncThunk} from "@/app/withTypes";
 import {client} from "@/api/client";
 
 interface AuthState {
-  username: string
+  username: string | null
 }
 
 export const login = createAppAsyncThunk(
