@@ -1,8 +1,9 @@
-import {createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createEntityAdapter, EntityState, createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 import {client} from "@/api/client";
 import {logout} from "@/features/auth/authSlice";
 import {createAppAsyncThunk} from "@/app/withTypes";
+import {RootState} from "@/app/store";
 
 export interface Reactions {
   thumbsUp: number
@@ -27,11 +28,20 @@ export interface Post {
 type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
 type NewPost = Pick<Post, 'title' | 'content' | 'user'>
 
-interface PostsState {
-  posts: Post[]
+interface PostsState extends EntityState<Post, string>{
   status: 'idle' | 'pending' | 'succeeded' | 'rejected'
   error: string | null
 }
+
+const postsAdapter = createEntityAdapter<Post>({
+  // Сортировать по дате убывания
+  sortComparer: (a, b) => b.date.localeCompare(a.date)
+})
+
+const initialState: PostsState = postsAdapter.getInitialState({
+  status: 'idle',
+  error: null
+})
 
 export const fetchPosts = createAppAsyncThunk(
   'posts/fetchPosts',
@@ -57,11 +67,6 @@ export const addNewPost = createAppAsyncThunk(
   }
 )
 
-const initialState: PostsState = {
-  posts: [],
-  status: 'idle',
-  error: null
-}
 
 // Создаем Slice и передаем исходное состояние
 const postsSlice = createSlice({
@@ -70,7 +75,7 @@ const postsSlice = createSlice({
   reducers: {
     postUpdated(state, action: PayloadAction<PostUpdate>) {
       const {id, title, content} = action.payload
-      const existingPost = state.posts.find(post => post.id === id)
+      const existingPost = state.entities[id]
       if (existingPost) {
         existingPost.title = title
         existingPost.content = content
@@ -81,7 +86,7 @@ const postsSlice = createSlice({
       action: PayloadAction<{ postId: string; reaction: ReactionName }>
     ) {
       const {postId, reaction} = action.payload
-      const existingPost = state.posts.find(post => post.id === postId)
+      const existingPost = state.entities[postId]
       if (existingPost) {
         existingPost.reactions[reaction]++
       }
@@ -97,33 +102,19 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.posts.push(...action.payload)
+        // Сохраните полученные сообщения в состоянии
+        postsAdapter.setAll(state, action.payload)
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'rejected'
         state.error = action.error.message ?? 'Unknown Error'
       })
-      .addCase(addNewPost.fulfilled, (state, action) => {
-        state.posts.push(action.payload)
-      })
+      .addCase(addNewPost.fulfilled, postsAdapter.addOne)
   },
   // Перенес селекторы в createSlice
   selectors: {
-    selectAllPosts: postState => postState.posts,
-    selectPostById: (postState, postId: string) => postState.posts.find(post => post.id === postId),
     selectPostsStatus: postState => postState.status,
     selectPostsError: postState => postState.error,
-    // selectPostsByUser: (postState, userId: string): Post[] => {
-    //   const allPosts = postsSlice.getSelectors().selectAllPosts(postState)
-    //   return allPosts.filter(post => post.user === userId)
-    //     .sort((a, b) => b.date.localeCompare(a.date))
-    // }
-    selectPostsByUser: createSelector([
-        (postState): Post[] => postsSlice.getSelectors().selectAllPosts(postState),
-        (postState, userId) => userId
-      ],
-      (posts, userId) => posts.filter(post => post.user === userId)
-    )
   }
 })
 
@@ -131,12 +122,22 @@ const postsSlice = createSlice({
 export const {postUpdated, reactionAdded} = postsSlice.actions
 
 export const {
-  selectAllPosts,
-  selectPostById,
   selectPostsStatus,
   selectPostsError,
-  selectPostsByUser
 } = postsSlice.selectors
+
+export const {
+  selectAll: selectAllPosts,
+  selectById: selectPostById,
+  selectIds: selectPostIds
+} = postsAdapter.getSelectors((state: RootState) => state.posts)
+
+export const selectPostsByUser = createSelector([
+    (postState): Post[] => selectAllPosts(postState),
+    (postState, userId) => userId
+  ],
+  (posts, userId) => posts.filter(post => post.user === userId)
+)
 
 // Экспортируем сгенерированную функцию редуктора
 export default postsSlice.reducer
