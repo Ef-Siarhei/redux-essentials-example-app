@@ -1,6 +1,12 @@
 import {useAppDispatch, useAppSelector} from "@/app/hooks";
 import {Link} from "react-router-dom";
-import {fetchPosts, Post, selectAllPosts, selectPostsError, selectPostsStatus} from "@/features/posts/postsSlice";
+import {
+  fetchPosts,
+  selectPostById,
+  selectPostIds,
+  selectPostsError,
+  selectPostsStatus
+} from "@/features/posts/postsSlice";
 import {PostAuthor} from "@/features/posts/PostAuthor";
 import {TimeAgo} from "@/components/TimeAgo";
 import {ReactionButtons} from "@/features/posts/ReactionButtons";
@@ -8,10 +14,11 @@ import React, {useEffect} from "react";
 import {Spinner} from "@/components/Spinner";
 
 interface PostExcerptProps {
-  post: Post
+  postId: string
 }
 
-let PostExcerpt =  ({post}: PostExcerptProps) => {
+let PostExcerpt =  ({postId}: PostExcerptProps) => {
+  const post = useAppSelector(state => selectPostById(state, postId))
   return (
     <article className={'post-excerpt'}>
       <h3>
@@ -24,11 +31,10 @@ let PostExcerpt =  ({post}: PostExcerptProps) => {
     </article>
   )
 }
-let PostExcerptMemo = React.memo(PostExcerpt)
 
 const PostsList = () => {
   const dispatch = useAppDispatch()
-  const posts = useAppSelector(selectAllPosts)
+  const orderedPostIds = useAppSelector(selectPostIds)
   const postStatus = useAppSelector(selectPostsStatus)
   const postError = useAppSelector(selectPostsError)
 
@@ -43,16 +49,12 @@ const PostsList = () => {
   if (postStatus === 'pending') {
     content = <Spinner text={'Loading...'}/>
   } else if (postStatus === 'succeeded') {
-
-    const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date))
-
-    content = orderedPosts.map(post => (
-      <PostExcerptMemo post={post} key={post.id}/>
+       content = orderedPostIds.map(postId => (
+      <PostExcerpt postId={postId} key={postId}/>
     ))
   } else if (postStatus === 'rejected') {
     content = <div>{postError}</div>
   }
-
 
   return (
     <section className={'posts-list'}>
