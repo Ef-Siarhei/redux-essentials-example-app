@@ -4,6 +4,7 @@ import {client} from "@/api/client";
 import {logout} from "@/features/auth/authSlice";
 import {createAppAsyncThunk} from "@/app/withTypes";
 import {RootState} from "@/app/store";
+import {AppStartListening} from "@/app/listenerMiddleware";
 
 export interface Reactions {
   thumbsUp: number
@@ -134,6 +135,24 @@ export const selectPostsByUser = createSelector([
   ],
   (posts, userId) => posts.filter(post => post.user === userId)
 )
+
+export const addPostsListeners = (startAppListening: AppStartListening) => {
+  startAppListening({
+    actionCreator: addNewPost.fulfilled,
+    effect: async (action, listenerApi) => {
+      const {toast} =await import('react-tiny-toast')
+
+      const toastId = toast.show('New post added!', {
+        variant: 'success',
+        position: 'bottom-right',
+        pause: true
+      })
+
+      await listenerApi.delay(5000)
+      toast.remove(toastId)
+    }
+  })
+}
 
 // Экспортируем сгенерированную функцию редуктора
 export default postsSlice.reducer
