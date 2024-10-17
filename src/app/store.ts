@@ -4,7 +4,7 @@ import usersReducer from '../features/users/usersSlice'
 import authReducer from "../features/auth/authSlice";
 import notificationsReducer from "@/features/notification/notificationsSlice";
 
-
+import {listenerMiddleware} from "@/app/listenerMiddleware";
 
 export const store = configureStore({
     reducer:{
@@ -12,7 +12,9 @@ export const store = configureStore({
         posts: postsReducer,
         users: usersReducer,
         notifications: notificationsReducer
-    }
+    },
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware().prepend(listenerMiddleware.middleware)
 })
 
 // Определить тип «store»
