@@ -7,7 +7,7 @@ import {TimeAgo} from "@/components/TimeAgo";
 import {useGetPostsQuery, Post} from "@/features/api/apiSlice";
 
 import {ReactionButtons} from "@/features/posts/ReactionButtons";
-import React from "react";
+import React, {useMemo} from "react";
 import {Spinner} from "@/components/Spinner";
 
 // Возвращаемся к передаче объекта `post` в качестве реквизита
@@ -40,13 +40,21 @@ const PostsList = () => {
     error
   } = useGetPostsQuery()
 
+  const sortedPosts = useMemo(()=>{
+    const sortedPosts = posts.slice()
+    // Сортируем сообщения в хронологическом порядке по убыванию
+    sortedPosts.sort((a, b) => b.date.localeCompare(a.date))
+    console.log(posts)
+    return sortedPosts
+  },[posts])
+
   let content: React.ReactNode
 
   // Показываем состояние тревоги на основе флагов состояния перехватчика
   if (isLoading) {
     content = <Spinner text={'Loading...'}/>
   } else if (isSuccess) {
-       content = posts.map(post => (
+       content = sortedPosts.map(post => (
       <PostExcerpt post={post} key={post.id}/>
     ))
   } else if (isError) {
