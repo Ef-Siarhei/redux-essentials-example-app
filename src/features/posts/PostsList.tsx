@@ -1,24 +1,22 @@
-import {useAppDispatch, useAppSelector} from "@/app/hooks";
+
 import {Link} from "react-router-dom";
-import {
-  fetchPosts,
-  selectPostById,
-  selectPostIds,
-  selectPostsError,
-  selectPostsStatus
-} from "@/features/posts/postsSlice";
+
 import {PostAuthor} from "@/features/posts/PostAuthor";
 import {TimeAgo} from "@/components/TimeAgo";
+
+import {useGetPostsQuery, Post} from "@/features/api/apiSlice";
+
 import {ReactionButtons} from "@/features/posts/ReactionButtons";
-import React, {useEffect} from "react";
+import React from "react";
 import {Spinner} from "@/components/Spinner";
 
+// Возвращаемся к передаче объекта `post` в качестве реквизита
 interface PostExcerptProps {
-  postId: string
+  post: Post
 }
 
-let PostExcerpt =  ({postId}: PostExcerptProps) => {
-  const post = useAppSelector(state => selectPostById(state, postId))
+let PostExcerpt =  ({post}: PostExcerptProps) => {
+  // const post = useAppSelector(state => selectPostById(state, postId))
   return (
     <article className={'post-excerpt'}>
       <h3>
@@ -33,27 +31,26 @@ let PostExcerpt =  ({postId}: PostExcerptProps) => {
 }
 
 const PostsList = () => {
-  const dispatch = useAppDispatch()
-  const orderedPostIds = useAppSelector(selectPostIds)
-  const postStatus = useAppSelector(selectPostsStatus)
-  const postError = useAppSelector(selectPostsError)
-
-  useEffect(() => {
-    if (postStatus === 'idle') {
-      dispatch(fetchPosts())
-    }
-  }, [postStatus, dispatch])
+  // Вызов хука `useGetPostsQuery()` автоматически извлекает данные!
+  const {
+    data: posts = [],
+    isLoading,
+    isSuccess,
+    isError,
+    error
+  } = useGetPostsQuery()
 
   let content: React.ReactNode
 
-  if (postStatus === 'pending') {
+  // Показываем состояние тревоги на основе флагов состояния перехватчика
+  if (isLoading) {
     content = <Spinner text={'Loading...'}/>
-  } else if (postStatus === 'succeeded') {
-       content = orderedPostIds.map(postId => (
-      <PostExcerpt postId={postId} key={postId}/>
+  } else if (isSuccess) {
+       content = posts.map(post => (
+      <PostExcerpt post={post} key={post.id}/>
     ))
-  } else if (postStatus === 'rejected') {
-    content = <div>{postError}</div>
+  } else if (isError) {
+    content = <div>{error.toString()}</div>
   }
 
   return (
