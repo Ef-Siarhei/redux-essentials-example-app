@@ -16,14 +16,14 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({baseUrl: '/fakeApi'}),
   // «Конечные точки» представляют собой операцию и запрос для этого сервера.
   endpoints: builder => ({
-    // Конечная точка `getPosts` — это операция запроса, которая возвращает данные.
-    // Возвращаемое значение представляет собой массив `Post[]` и не принимает аргументов.
     getPosts: builder.query<Post[], void>({
-      // URL-адрес запроса: «/fakeApi/posts».
-      query: () => '/posts'
+       query: () => '/posts'
+    }),
+    getPost: builder.query<Post, string>({
+      query: (postId) => `/posts/${postId}`
     })
   })
 })
 
 // Экспортируемый автоматически сгенерированный hook для конечной точки запроса `getPosts`
-export const {useGetPostsQuery} = apiSlice
+export const {useGetPostsQuery, useGetPostQuery} = apiSlice

@@ -44,7 +44,6 @@ const PostsList = () => {
     const sortedPosts = posts.slice()
     // Сортируем сообщения в хронологическом порядке по убыванию
     sortedPosts.sort((a, b) => b.date.localeCompare(a.date))
-    console.log(posts)
     return sortedPosts
   },[posts])
 
