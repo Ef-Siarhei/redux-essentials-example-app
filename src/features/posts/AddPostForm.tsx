@@ -1,7 +1,7 @@
-import React, {useState} from "react";
-import {useAppDispatch, useAppSelector} from "@/app/hooks";
+import React from "react";
+import {useAppSelector} from "@/app/hooks";
 import {selectCurrentUsername} from "@/features/auth/authSlice";
-import {addNewPost} from "@/features/posts/postsSlice";
+import {useAddNewPostMutation} from "@/features/api/apiSlice";
 
 // Типы TS для ввода полей
 // См.: https://epicreact.dev/how-to-type-a-react-form-on-submit-handler/
@@ -16,10 +16,9 @@ interface AddPostFormElements extends HTMLFormElement {
 }
 
 const AddPostForm = () => {
-  const [addRequestStatus, setAddRequestStatus] = useState<'idle' | 'pending'>('idle')
 
-  const dispatch = useAppDispatch()
   const userId = useAppSelector(selectCurrentUsername)
+  const [addNewPost, {isLoading}] = useAddNewPostMutation()
 
   const handleSubmit = async (e: React.FormEvent<AddPostFormElements>) => {
     // Запретить отправку на сервер
@@ -32,18 +31,15 @@ const AddPostForm = () => {
     const form = e.currentTarget
 
     try {
-      setAddRequestStatus('pending')
       //Redux Toolkit добавляет .unwrap() функцию к возвращаемому Promise
       // которая возвращает новый Promise, который либо имеет фактическое action.payload
       // значение из fulfilled действия, либо выдает ошибку, если это действие rejected.
       // Это позволяет нам обрабатывать успех и неудачу в компоненте, используя обычную try/catch логику.
-      await dispatch(addNewPost({title, content, user: userId})).unwrap()
+      await addNewPost({title, content, user: userId}).unwrap()
 
       form.reset()
     } catch (error) {
       console.error('Failed to save the post: ', error)
-    } finally {
-      setAddRequestStatus('idle')
     }
   }
 
@@ -60,7 +56,7 @@ const AddPostForm = () => {
           defaultValue={''}
           required
         />
-        <button disabled={addRequestStatus === 'pending'}>Save Post</button>
+        <button disabled={isLoading}>Save Post</button>
       </form>
     </section>
   )

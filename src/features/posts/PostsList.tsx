@@ -16,7 +16,6 @@ interface PostExcerptProps {
 }
 
 let PostExcerpt =  ({post}: PostExcerptProps) => {
-  // const post = useAppSelector(state => selectPostById(state, postId))
   return (
     <article className={'post-excerpt'}>
       <h3>
