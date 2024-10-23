@@ -5,6 +5,7 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 // and then re-export it for ease of use
 
 import type {Post, NewPost} from "../posts/postsSlice"
+
 export type {Post}
 
 // Определите наш единственный объект среза API
@@ -13,10 +14,12 @@ export const apiSlice = createApi({
   reducerPath: 'api',
   // All of our requests will have URLs starting with '/fakeApi'
   baseQuery: fetchBaseQuery({baseUrl: '/fakeApi'}),
+  tagTypes: ['Post'],
   // «Конечные точки» представляют собой операцию и запрос для этого сервера.
   endpoints: builder => ({
     getPosts: builder.query<Post[], void>({
-       query: () => '/posts'
+      query: () => '/posts',
+      providesTags: ['Post']
     }),
     getPost: builder.query<Post, string>({
       query: (postId) => `/posts/${postId}`
@@ -29,7 +32,8 @@ export const apiSlice = createApi({
         method: 'POST',
         // Включаем весь объект сообщения в запрос тела
         body: initialPost
-      })
+      }),
+      invalidatesTags: ['Post']
     })
   })
 })
