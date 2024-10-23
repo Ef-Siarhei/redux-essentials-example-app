@@ -1,4 +1,3 @@
-
 import {Link} from "react-router-dom";
 
 import {PostAuthor} from "@/features/posts/PostAuthor";
@@ -9,13 +8,14 @@ import {useGetPostsQuery, Post} from "@/features/api/apiSlice";
 import {ReactionButtons} from "@/features/posts/ReactionButtons";
 import React, {useMemo} from "react";
 import {Spinner} from "@/components/Spinner";
+import classNames from "classnames";
 
 // Возвращаемся к передаче объекта `post` в качестве реквизита
 interface PostExcerptProps {
   post: Post
 }
 
-let PostExcerpt =  ({post}: PostExcerptProps) => {
+let PostExcerpt = ({post}: PostExcerptProps) => {
   return (
     <article className={'post-excerpt'}>
       <h3>
@@ -34,17 +34,19 @@ const PostsList = () => {
   const {
     data: posts = [],
     isLoading,
+    isFetching,
     isSuccess,
     isError,
-    error
+    error,
+    refetch
   } = useGetPostsQuery()
 
-  const sortedPosts = useMemo(()=>{
+  const sortedPosts = useMemo(() => {
     const sortedPosts = posts.slice()
     // Сортируем сообщения в хронологическом порядке по убыванию
     sortedPosts.sort((a, b) => b.date.localeCompare(a.date))
     return sortedPosts
-  },[posts])
+  }, [posts])
 
   let content: React.ReactNode
 
@@ -52,9 +54,15 @@ const PostsList = () => {
   if (isLoading) {
     content = <Spinner text={'Loading...'}/>
   } else if (isSuccess) {
-       content = sortedPosts.map(post => (
+    const renderedPosts = sortedPosts.map(post => (
       <PostExcerpt post={post} key={post.id}/>
     ))
+
+    const containerClassname = classNames('posts-container', {
+      disabled: isFetching
+    })
+
+    content = <div className={containerClassname}>{renderedPosts}</div>
   } else if (isError) {
     content = <div>{error.toString()}</div>
   }
@@ -62,6 +70,7 @@ const PostsList = () => {
   return (
     <section className={'posts-list'}>
       <h2>Posts</h2>
+      <button onClick={refetch}>Re fetch Posts</button>
       {content}
     </section>
   )
