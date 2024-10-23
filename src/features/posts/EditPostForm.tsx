@@ -1,7 +1,6 @@
 import React from "react";
-import {useAppDispatch, useAppSelector} from "@/app/hooks";
 import {useNavigate, useParams} from "react-router-dom";
-import {postUpdated, selectPostById} from "@/features/posts/postsSlice";
+import {useEditPostMutation, useGetPostQuery} from "@/features/api/apiSlice";
 
 // Типы TS для ввода полей
 // См.: https://epicreact.dev/how-to-type-a-react-form-on-submit-handler/
@@ -17,9 +16,9 @@ interface EditPostFormElements extends HTMLFormElement {
 const EditPostForm = () => {
   const {postId} = useParams()
 
-  const post = useAppSelector(state => selectPostById(state,postId!))
+  const {data: post} = useGetPostQuery(postId!)
+  const [updatePost, {isLoading}] = useEditPostMutation()
 
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
   if (!post) {
@@ -30,17 +29,17 @@ const EditPostForm = () => {
     )
   }
 
-  const onSavePostClicked = ((e: React.FormEvent<EditPostFormElements>) => {
+  const onSavePostClicked = async (e: React.FormEvent<EditPostFormElements>) => {
     e.preventDefault()
     const {elements} = e.currentTarget
     const title = elements.postTitle.value
     const content = elements.postContent.value
 
     if (title && content) {
-      dispatch(postUpdated({id: post.id, title, content}))
+      await updatePost({id: post.id, title, content})
       navigate(`/posts/${postId}`)
     }
-  })
+  }
 
   return (
     <section>
