@@ -6,6 +6,8 @@ import {createAppAsyncThunk} from "@/app/withTypes";
 import {RootState} from "@/app/store";
 import {AppStartListening} from "@/app/listenerMiddleware";
 
+import {apiSlice} from "@/features/api/apiSlice";
+
 export interface Reactions {
   thumbsUp: number
   tada: number
@@ -138,7 +140,7 @@ export const selectPostsByUser = createSelector([
 
 export const addPostsListeners = (startAppListening: AppStartListening) => {
   startAppListening({
-    actionCreator: addNewPost.fulfilled,
+    matcher: apiSlice.endpoints.addNewPost.matchFulfilled,
     effect: async (action, listenerApi) => {
       const {toast} =await import('react-tiny-toast')
 
